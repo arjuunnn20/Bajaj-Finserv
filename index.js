@@ -3,8 +3,8 @@ const app = express();
 app.use(express.json());
 
 // --- Environment Variables ---
-const FULL_NAME_LOWERCASE = process.env.FULL_NAME_LOWERCASE || "your_full_name_in_lowercase";
-const DOB_DDMMYYYY = process.env.DOB_DDMMYYYY || "ddmmyyyy";
+const FULL_NAME_LOWERCASE = process.env.FULL_NAME_LOWERCASE || "john_doe";
+const DOB_DDMMYYYY = process.env.DOB_DDMMYYYY || "17091999";
 const EMAIL = process.env.EMAIL || "john@xyz.com";
 const ROLL_NUMBER = process.env.ROLL_NUMBER || "ABCD123";
 
