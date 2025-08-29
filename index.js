@@ -5,8 +5,8 @@ app.use(express.json());
 // --- Environment Variables ---
 const FULL_NAME_LOWERCASE = process.env.FULL_NAME_LOWERCASE || "your_full_name_in_lowercase";
 const DOB_DDMMYYYY = process.env.DOB_DDMMYYYY || "ddmmyyyy";
-const EMAIL = process.env.EMAIL || "you@example.com";
-const ROLL_NUMBER = process.env.ROLL_NUMBER || "YOURROLL123";
+const EMAIL = process.env.EMAIL || "john@xyz.com";
+const ROLL_NUMBER = process.env.ROLL_NUMBER || "ABCD123";
 
 // --- Failure Response Template ---
 const getFailureResponse = () => ({
