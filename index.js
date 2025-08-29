@@ -8,70 +8,86 @@ const DOB_DDMMYYYY = process.env.DOB_DDMMYYYY || "ddmmyyyy";
 const EMAIL = process.env.EMAIL || "you@example.com";
 const ROLL_NUMBER = process.env.ROLL_NUMBER || "YOURROLL123";
 
-// --- Reusable Failure Response ---
+// --- Failure Response Template ---
 const getFailureResponse = () => ({
   is_success: false,
-  // ✅ FIX: Using template literal (backticks)
-  user_id: ${FULL_NAME_LOWERCASE}_${DOB_DDMMYYYY},
+  user_id: `${FULL_NAME_LOWERCASE}_${DOB_DDMMYYYY}`,
   email: EMAIL,
   roll_number: ROLL_NUMBER,
-  // Default empty values
   odd_numbers: [],
   even_numbers: [],
   alphabets: [],
+  special_characters: [],
+  sum: "0",
+  concat_string: ""
 });
 
+// --- POST /bfhl ---
 app.post("/bfhl", (req, res) => {
   try {
     const data = req.body && Array.isArray(req.body.data) ? req.body.data : null;
 
     if (!data) {
-      // ✅ FIX: Returning 400 for bad request
-      return res.status(400).json(getFailureResponse());
+      return res.status(200).json(getFailureResponse());
     }
 
     const odd_numbers = [];
     const even_numbers = [];
     const alphabets = [];
+    const special_characters = [];
+    const letters = [];
+    let sum = 0n;
 
     for (const item of data) {
-      // Coerce to string for consistent checking
       const s = String(item);
-      
-      if (!isNaN(s) && !isNaN(parseFloat(s))) { // A more robust number check
-        if (Number(s) % 2 === 0) {
+
+      if (/^[0-9]+$/.test(s)) {
+        const n = BigInt(s);
+        sum += n;
+        if (n % 2n === 0n) {
           even_numbers.push(s);
         } else {
           odd_numbers.push(s);
         }
       } else if (/^[A-Za-z]+$/.test(s)) {
         alphabets.push(s.toUpperCase());
+        for (const ch of s) letters.push(ch);
+      } else {
+        special_characters.push(s);
       }
-      // Note: Items with both letters and numbers will be ignored here.
+    }
+
+    // Build concat_string (reverse + alternating case)
+    letters.reverse();
+    const out = [];
+    for (let i = 0; i < letters.length; i++) {
+      const ch = letters[i];
+      out.push(i % 2 === 0 ? ch.toUpperCase() : ch.toLowerCase());
     }
 
     res.status(200).json({
       is_success: true,
-      // ✅ FIX: Using template literal (backticks)
-      user_id: ${FULL_NAME_LOWERCASE}_${DOB_DDMMYYYY},
+      user_id: `${FULL_NAME_LOWERCASE}_${DOB_DDMMYYYY}`,
       email: EMAIL,
       roll_number: ROLL_NUMBER,
       odd_numbers,
       even_numbers,
       alphabets,
+      special_characters,
+      sum: sum.toString(),
+      concat_string: out.join("")
     });
   } catch (error) {
-    // ✅ FIX: Logging the error for debugging
-    console.error("Error processing /bfhl request:", error);
-    
-    // ✅ FIX: Returning 500 for internal server error
+    console.error("Error in /bfhl:", error);
     res.status(500).json(getFailureResponse());
   }
 });
 
+// --- Health Check ---
 app.get("/", (req, res) => res.send("OK"));
 
+// --- Start Server ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(Server running on port ${PORT});
+  console.log(`Server running on port ${PORT}`);
 });
